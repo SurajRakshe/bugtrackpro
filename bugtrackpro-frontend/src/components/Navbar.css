@@ -1,0 +1,23 @@
+.navbar {
+  background-color: #2e3b4e;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+}
+.navbar ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+}
+.navbar a, .navbar button {
+  color: #fff;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.navbar button:hover, .navbar a:hover {
+  text-decoration: underline;
+}

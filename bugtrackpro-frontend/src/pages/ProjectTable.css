@@ -1,0 +1,40 @@
+.project-container {
+  width: 80%;
+  margin: auto;
+  padding-top: 2rem;
+}
+
+.project-form {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.project-form input {
+  padding: 0.5rem;
+  flex: 1;
+}
+
+.project-form button {
+  padding: 0.5rem 1rem;
+  background-color: #198754;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.project-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.project-table th, .project-table td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+}
+
+.project-table .danger {
+  background-color: #dc3545;
+  color: white;
+}
