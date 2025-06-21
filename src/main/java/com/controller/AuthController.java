@@ -32,9 +32,13 @@ public class AuthController {
 	private final UserRepository userRepository;
 
 	@PostMapping("/register")
-	public ResponseEntity<String> register(@RequestBody User user) {
-		userService.registerUser(user);
-		return ResponseEntity.ok("User registered successfully.");
+	public ResponseEntity<?> register(@RequestBody User user) {
+		try {
+			userService.registerUser(user);
+			return ResponseEntity.ok("User registered successfully.");
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));
+		}
 	}
 
 	@PostMapping("/login")

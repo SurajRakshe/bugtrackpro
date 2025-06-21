@@ -27,54 +27,71 @@ import java.util.Collections;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-	@Autowired
-	private JwtAuthenticationFilter jwtAuthFilter;
+	  @Autowired
+	    private JwtAuthenticationFilter jwtAuthFilter;
 
-	@Autowired
-	private UserDetailsService userDetailsService;
+	    @Autowired
+	    private UserDetailsService userDetailsService;
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
+	    @Bean
+	    public PasswordEncoder passwordEncoder() {
+	        return new BCryptPasswordEncoder();
+	    }
+
+	    @Bean
+	    public AuthenticationProvider authenticationProvider() {
+	        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+	        provider.setUserDetailsService(userDetailsService);
+	        provider.setPasswordEncoder(passwordEncoder());
+	        return provider;
+	    }
+
+	    @Bean
+	    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+	        return config.getAuthenticationManager();
+	    }
+
+	    @Bean
+	    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	        http.csrf().disable()
+	                .cors()
+	                .and()
+	                .authorizeHttpRequests()
+	                .antMatchers("/api/auth/**").permitAll()
+	                .antMatchers("/api/admin/**").hasRole("ADMIN")
+	                .antMatchers("/api/user/**").hasAnyRole("ADMIN", "USER")
+	                .anyRequest().authenticated()
+	                .and()
+	                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+	                .and()
+	                .authenticationProvider(authenticationProvider())
+	                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+	        return http.build();
+	    }
+
+	    @Bean
+	    public CorsFilter corsFilter() {
+	        CorsConfiguration config = new CorsConfiguration();
+	        config.setAllowCredentials(true);
+
+	        // ✅ Allow both localhost (dev) and Render frontend (prod)
+	        config.setAllowedOriginPatterns(Arrays.asList(
+	                "http://localhost:3000",
+	                "https://bugtrackpro-frontend.onrender.com"
+	        ));
+
+	        config.setAllowedHeaders(Arrays.asList(
+	                "Origin", "Content-Type", "Accept", "Authorization"
+	        ));
+
+	        config.setAllowedMethods(Arrays.asList(
+	                "GET", "POST", "PUT", "DELETE", "OPTIONS"
+	        ));
+
+	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	        source.registerCorsConfiguration("/**", config);
+
+	        return new CorsFilter(source);
+	    }
 	}
-
-	@Bean
-	public AuthenticationProvider authenticationProvider() {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setUserDetailsService(userDetailsService);
-		provider.setPasswordEncoder(passwordEncoder());
-		return provider;
-	}
-
-	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-		return config.getAuthenticationManager();
-	}
-
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf().disable().cors() // Enable CORS support
-				.and().authorizeHttpRequests().antMatchers("/api/auth/**").permitAll().antMatchers("/api/admin/**")
-				.hasRole("ADMIN").antMatchers("/api/user/**").hasAnyRole("ADMIN", "USER").anyRequest().authenticated()
-				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-				.authenticationProvider(authenticationProvider())
-				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-		return http.build();
-	}
-
-	// ✅ Correct CORS filter bean
-	@Bean
-	public CorsFilter corsFilter() {
-		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowCredentials(true);
-		config.setAllowedOriginPatterns(Collections.singletonList("http://localhost:3000"));
-		config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
-		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", config);
-
-		return new CorsFilter(source);
-	}
-}
