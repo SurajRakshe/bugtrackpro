@@ -2,7 +2,9 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:8181', // Change if deployed
+ // baseURL: 'http://localhost:8181', // Change if deployed
+    baseURL : 'https://bugtrackpro-backend.onrender.com',
+
 });
 
 // Automatically attach JWT token from localStorage to every request
