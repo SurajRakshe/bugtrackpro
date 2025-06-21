@@ -29,7 +29,7 @@ RUN chown appuser:appgroup /app/app.jar
 USER appuser
 
 # Expose the port configured in application.properties (Render uses $PORT)
-EXPOSE 8181
+EXPOSE 8080
 
 # Start the Spring Boot app
 ENTRYPOINT ["java", "-jar", "app.jar"]
